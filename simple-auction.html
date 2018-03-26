@@ -63,18 +63,38 @@
 		<div id="response"></div>
 
 		<script type="text/javascript" src="ethereumjs-testrpc.js"></script>
+		<script type="text/javascript" src="web3.js"></script>
 		<script type="text/javascript" src="ethjs.js"></script>
 		<script type="text/javascript">
-		  var eth = new Eth(TestRPC.provider());
+
+		//	var test = true; // uncomment this to use testrpc instead.
+			var eth;
+
+			if (typeof test !== 'undefined')
+			{
+		  	 eth = new Eth(TestRPC.provider());
+			}
+			else
+			{
+
+				// uncomment to enable MetaMask support:
+				if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined')
+				{
+					 eth = new Eth(window.web3.currentProvider);
+				}
+				else
+				{
+					var currentProvider = new Web3.providers.HttpProvider('http://localhost:7545');
+					var web3 = new Web3(currentProvider);
+					 eth = new Eth(web3.currentProvider);
+				}
+			}
+
 		  var el = function(id){ return document.querySelector(id); };
-		  /*
-		  // uncomment to enable MetaMask support:
-		  if (typeof window.web3 !== 'undefined' && typeof window.web3.currentProvider !== 'undefined') {
-			eth.setProvider(window.web3.currentProvider);
-		  } else {
-			eth.setProvider(provider); // set to TestRPC if not available
-		  }
-		  */
+
+
+
+
 		  eth.accounts().then(function(accounts) {
 			accounts.forEach(function(address){
 			  bidAccount.innerHTML += '<option value="' + address + '">'
@@ -86,7 +106,7 @@
 			var SimpleAuction = eth.contract(SimpleAuctionABI, SimpleAuctionBytecode, { from: accounts[0], gas: 3000000 });
 			var simpleAuctionInstance;
 			var beneficiary = accounts[0];
-			var biddingTime = 300; // 15 thousand seconds
+			var biddingTime = 10; // 15 thousand seconds
 			// poll for new auction data
 			var auctionInterval = setInterval(function updateAuctionHTML() {
 			  if (!simpleAuctionInstance) { return; }
