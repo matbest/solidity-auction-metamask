@@ -126,14 +126,15 @@
 				el('#highestBid').innerHTML = Eth.fromWei(highestBid[0], 'ether');
 			  });
 			  simpleAuctionInstance.auctionStart().then(function(auctionStart){
-				simpleAuctionInstance.biddingTime().then(function(biddingTime){
-				  var timeleft = (auctionStart[0].add(biddingTime[0]))
-				  .sub(new Eth.BN((new Date()).getTime() / 1000));
+				simpleAuctionInstance.biddingTime().then(function(biddingTime)
+				{
+				  var timeleft = (auctionStart[0].add(biddingTime[0])).sub(new Eth.BN((new Date()).getTime() / 1000));
 				  el('#timeleft').innerHTML = timeleft.toString(10);
 				  // time left is less than or equal to (lte) 0
-				  if (timeleft.lte(0)) {
-					clearInterval(auctionInterval);
-					el('#endAuction').disabled = '';
+				  if (timeleft.negative)
+					{
+						clearInterval(auctionInterval);
+						el('#endAuction').disabled = '';
 				  }
 				});
 			  });
@@ -163,7 +164,7 @@
 					});
 					el('#endAuction').addEventListener('click', function(){
 					  el('#response').innerHTML = 'Ending auction...';
-					  simpleAuctionInstance.endAuction(function(endError, endResult){
+					  simpleAuctionInstance.auctionEnd(function(endError, endResult){
 						if (endError) {
 						  el('#response').innerHTML = 'Hmm, there was an error' + String(endError);
 						} else {
